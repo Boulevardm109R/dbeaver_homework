@@ -1,40 +1,56 @@
-CREATE TABLE Genres (
+-- таблица Genres
+CREATE TABLE IF NOT EXISTS Genres (
   genre_id SERIAL PRIMARY KEY,
   name VARCHAR(255) UNIQUE
 );
 
-CREATE TABLE Artists (
+-- таблица Artists
+CREATE TABLE IF NOT EXISTS Artists (
   artist_id SERIAL PRIMARY KEY,
-  name VARCHAR(255),
-  genre_id INTEGER REFERENCES Genres(genre_id),
-  CONSTRAINT fk_genre FOREIGN KEY (genre_id) REFERENCES Genres(genre_id)
+  name VARCHAR(255) UNIQUE
 );
 
-CREATE TABLE Albums (
-  album_id SERIAL PRIMARY KEY,
-  title VARCHAR(255),
-  year INTEGER CHECK (year >= 1900),
+-- таблица промежуточная ArtistGenres
+CREATE TABLE IF NOT EXISTS ArtistGenres (
   artist_id INTEGER REFERENCES Artists(artist_id),
-  CONSTRAINT fk_artist FOREIGN KEY (artist_id) REFERENCES Artists(artist_id)
+  genre_id INTEGER REFERENCES Genres(genre_id),
+  PRIMARY KEY (artist_id, genre_id)
 );
 
-CREATE TABLE Tracks (
+-- Создание таблицы Albums
+CREATE TABLE IF NOT EXISTS Albums (
+  album_id SERIAL PRIMARY KEY,
+  title VARCHAR(255) UNIQUE,
+  year INTEGER CHECK (year >= 1900),
+  artist_id INTEGER REFERENCES ArtistAlbum(artist)
+);
+
+--таблица промежуточная ArtistAlbum
+create table if not exists ArtistAlbum (
+artist_id INTEGER REFERENCES Artists(artist_id),
+album_id integer references Albums(album_id),
+PRIMARY KEY (artist_id, album_id)
+);
+
+-- Создание таблицы Tracks
+CREATE TABLE IF NOT EXISTS Tracks (
   track_id SERIAL PRIMARY KEY,
-  title VARCHAR(255),
+  title VARCHAR(255) UNIQUE,
   duration INTEGER CHECK (duration > 0),
-  album_id INTEGER REFERENCES Albums(album_id),
-  CONSTRAINT fk_album FOREIGN KEY (album_id) REFERENCES Albums(album_id)
+  album_id INTEGER REFERENCES Albums(album_id)
 );
 
-CREATE TABLE Collections (
+-- Создание таблицы Collections
+CREATE TABLE IF NOT EXISTS Collections (
   collection_id SERIAL PRIMARY KEY,
   title VARCHAR(255),
   year INTEGER CHECK (year >= 1900),
-  CONSTRAINT unique_title UNIQUE (title)
+  CONSTRAINT unique_collection_title UNIQUE (title)
 );
 
-CREATE TABLE CollectionTracks (
+-- Создание таблицы CollectionTracks
+CREATE TABLE IF NOT EXISTS CollectionTracks (
   collection_id INTEGER REFERENCES Collections(collection_id),
   track_id INTEGER REFERENCES Tracks(track_id),
   PRIMARY KEY (collection_id, track_id)
-);
+  );
